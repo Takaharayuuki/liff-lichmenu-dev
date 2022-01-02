@@ -1,0 +1,5 @@
+{
+  "recommendations": ["johnsoncodehk.volar"],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
