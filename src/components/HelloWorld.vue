@@ -1,36 +1,53 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
+import axios from 'axios'
+import liff from '@line/liff'
+
+const state = reactive({
+  lang: '',
+  version: '',
+  client: false,
+  isLoggedin: false,
+  os: null,
+  lineVersion: ''
+})
 
 defineProps<{ msg: string }>()
+liff.init({
+  liffId: `${import.meta.env.VITE_LIFF_ID}`
+}).then(() => {
+  state.lang = liff.getLanguage()
+  state.version = liff.getVersion()
+  state.client = liff.isInClient()
+  state.isLoggedin = liff.isLoggedIn()
+  state.os = liff.getOS() as any
+  state.lineVersion = liff.getLineVersion() as any
+})
+
+const setRichMenu = () => {
+  axios.post('https://api.line.me/v2/bot/richmenu', {
+    headers: {
+      Authorization: `Bearer ${import.meta.env.VITE_LINE_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  })
+}
 
 const count = ref(0)
 </script>
 
 <template>
   <h1>{{ msg }}</h1>
-
-  <p>
-    Recommended IDE setup:
-    <a href="https://code.visualstudio.com/" target="_blank">VSCode</a>
-    +
-    <a href="https://github.com/johnsoncodehk/volar" target="_blank">Volar</a>
-  </p>
-
-  <p>See <code>README.md</code> for more information.</p>
-
-  <p>
-    <a href="https://vitejs.dev/guide/features.html" target="_blank">
-      Vite Docs
-    </a>
-    |
-    <a href="https://v3.vuejs.org/" target="_blank">Vue 3 Docs</a>
-  </p>
-
-  <button type="button" @click="count++">count is: {{ count }}</button>
-  <p>
-    Edit
-    <code>components/HelloWorld.vue</code> to test hot module replacement.
-  </p>
+  <button @click="setRichMenu">リッチメニュー作成</button>
+  <div>
+    {{ state.lang }}
+    {{ state.version }}
+    {{ state.client }}
+    {{ state.isLoggedin }}
+    {{ state.os }}
+    {{ state.lineVersion }}
+  </div>
 </template>
 
 <style scoped>
